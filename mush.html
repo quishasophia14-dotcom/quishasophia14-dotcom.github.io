@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>🌸 Pastel Study Buddy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      font-family: "Comic Sans MS", "Poppins", sans-serif;
+      background: #ffd6e8;
+      color: #6b4fa3;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 16px;
+      background: #caa7ff;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #b18cff;
+    }
+
+    input {
+      border-radius: 12px;
+      border: 2px solid #f3c0ff;
+      padding: 6px 10px;
+      outline: none;
+    }
+
+    .timer {
+      font-size: 3rem;
+      text-align: center;
+      margin: 10px 0;
+    }
+
+    .progress {
+      height: 10px;
+      background: #ffe1f0;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .progress-inner {
+      height: 100%;
+      background: linear-gradient(to right, #caa7ff, #ffb3d9, #b3e5ff);
+      width: 0%;
+      transition: width 0.5s;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .todo-item {
+      background: linear-gradient(to right, #f3d9ff, #ffd6e8);
+      padding: 10px 14px;
+      border-radius: 14px;
+      margin-bottom: 6px;
+      cursor: grab;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .todo-item.done {
+      text-decoration: line-through;
+      opacity: 0.5;
+    }
+
+    /* 🌟 FULL PAGE SCHEDULE */
+    .schedule-section {
+      width: 100%;
+      margin: 0 auto 30px;
+      padding: 0 20px;
+    }
+
+    .schedule-card {
+      background: rgba(255,255,255,0.9);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.1);
+    }
+
+    .schedule-wrapper {
+      overflow-x: auto;
+      margin-top: 12px;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 1000px;
+      text-align: center;
+      font-size: 1rem;
+    }
+
+    th, td {
+      border: 2px solid #ffd6f0;
+      padding: 16px;
+      border-radius: 14px;
+      min-width: 130px;
+      height: 80px;
+    }
+
+    th {
+      background: #f3d9ff;
+      font-size: 1.1rem;
+    }
+
+    td {
+      background: #fff0f7;
+    }
+
+    td[contenteditable="true"] {
+      outline: none;
+      cursor: text;
+    }
+
+    .drop-hover {
+      background: #dff1ff !important;
+    }
+
+    iframe {
+      border-radius: 16px;
+      border: none;
+    }
+
+    footer {
+      text-align: center;
+      margin: 20px 0;
+      color: #a06cd5;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🌸 Pastel Study Buddy</h1>
+
+<div class="container">
+
+  <!-- POMODORO -->
+  <div class="card">
+    <h2>🍓 Pomodoro Timer</h2>
+
+    <div class="row">
+      Focus:
+      <input type="number" id="focusInput" value="25" style="width:60px"> min
+      Break:
+      <input type="number" id="breakInput" value="5" style="width:60px"> min
+    </div>
+
+    <div class="timer" id="timerDisplay">25:00</div>
+
+    <div class="progress">
+      <div class="progress-inner" id="progressBar"></div>
+    </div>
+
+    <div class="row">
+      <button onclick="startPause()" id="startBtn">Start</button>
+      <button onclick="resetTimer()">Reset</button>
+      <button onclick="toggleMode()">Switch</button>
+    </div>
+  </div>
+
+  <!-- TO DO -->
+  <div class="card">
+    <h2>🧸 To-Do List</h2>
+
+    <div class="row">
+      <input id="todoInput" placeholder="Add a task..." />
+      <button onclick="addTodo()">Add</button>
+    </div>
+
+    <div id="todoList"></div>
+  </div>
+
+<!-- SPOTIFY -->
+<div class="card">
+  <h2>🎧 Study Music</h2>
+  <input id="spotifyInput" placeholder="Paste Spotify embed link here..." style="width:100%" />
+  <br><br>
+  <iframe
+    id="spotifyFrame"
+    data-testid="embed-iframe"
+    style="border-radius:12px"
+    src="https://open.spotify.com/embed/playlist/3EJARqRZXHbJv65I89GKEX?utm_source=generator"
+    width="100%"
+    height="352"
+    frameBorder="0"
+    allowfullscreen
+    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+    loading="lazy">
+  </iframe>
+</div>
+<!-- 🌟 BIG FULL PAGE SCHEDULE -->
+<div class="schedule-section">
+  <div class="schedule-card">
+    <h2>📅 Weekly Schedule</h2>
+    <button onclick="addRow()">➕ Add Time Row</button>
+
+    <div class="schedule-wrapper">
+      <table id="scheduleTable">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Mon</th>
+            <th>Tue</th>
+            <th>Wed</th>
+            <th>Thu</th>
+            <th>Fri</th>
+          
+          </tr>
+        </thead>
+        <tbody id="scheduleBody">
+          <tr>
+            <td contenteditable="true">7:00–7:45</td>
+            <td></td><td></td><td></td><td></td><td></td>
+          </tr>
+          <tr>
+            <td contenteditable="true">9:00–10:00</td>
+            <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<footer>✨ Pastel Productivity Zone ✨</footer>
+
+<audio id="bellSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_2f5b1f9b6c.mp3"></audio>
+
+<script>
+/************ TIMER ************/
+let focusMinutes = 25;
+let breakMinutes = 5;
+let secondsLeft = focusMinutes * 60;
+let isRunning = false;
+let isFocus = true;
+let timerInterval = null;
+
+const timerDisplay = document.getElementById("timerDisplay");
+const progressBar = document.getElementById("progressBar");
+const bellSound = document.getElementById("bellSound");
+const startBtn = document.getElementById("startBtn");
+
+function updateDisplay() {
+  const m = Math.floor(secondsLeft / 60);
+  const s = secondsLeft % 60;
+  timerDisplay.textContent = `${m}:${s.toString().padStart(2, "0")}`;
+  const total = (isFocus ? focusMinutes : breakMinutes) * 60;
+  progressBar.style.width = `${100 - (secondsLeft / total) * 100}%`;
+}
+
+function startPause() {
+  if (isRunning) {
+    clearInterval(timerInterval);
+    isRunning = false;
+    startBtn.textContent = "Start";
+    return;
+  }
+
+  isRunning = true;
+  startBtn.textContent = "Pause";
+
+  timerInterval = setInterval(() => {
+    secondsLeft--;
+    if (secondsLeft <= 0) {
+      bellSound.play();
+      isFocus = !isFocus;
+      secondsLeft = (isFocus ? focusMinutes : breakMinutes) * 60;
+    }
+    updateDisplay();
+  }, 1000);
+}
+
+function resetTimer() {
+  clearInterval(timerInterval);
+  isRunning = false;
+  startBtn.textContent = "Start";
+  secondsLeft = (isFocus ? focusMinutes : breakMinutes) * 60;
+  updateDisplay();
+}
+
+function toggleMode() {
+  isFocus = !isFocus;
+  secondsLeft = (isFocus ? focusMinutes : breakMinutes) * 60;
+  updateDisplay();
+}
+
+document.getElementById("focusInput").addEventListener("input", e => {
+  focusMinutes = Number(e.target.value);
+  if (isFocus) {
+    secondsLeft = focusMinutes * 60;
+    updateDisplay();
+  }
+});
+
+document.getElementById("breakInput").addEventListener("input", e => {
+  breakMinutes = Number(e.target.value);
+  if (!isFocus) {
+    secondsLeft = breakMinutes * 60;
+    updateDisplay();
+  }
+});
+
+updateDisplay();
+
+/************ TODO LIST ************/
+const todoInput = document.getElementById("todoInput");
+const todoList = document.getElementById("todoList");
+let todos = JSON.parse(localStorage.getItem("todos")) || [];
+
+function saveTodos() {
+  localStorage.setItem("todos", JSON.stringify(todos));
+}
+
+function renderTodos() {
+  todoList.innerHTML = "";
+  todos.forEach((todo, index) => {
+    const div = document.createElement("div");
+    div.className = "todo-item" + (todo.done ? " done" : "");
+    div.draggable = true;
+    div.dataset.index = index;
+    div.style.background = todo.color;
+
+    div.innerHTML = `
+      <span>${todo.text}</span>
+      <div style="display:flex;align-items:center;">
+        <input type="color" value="${todo.color}" onchange="changeColor(${index}, this.value)" />
+        <span onclick="toggleTodo(${index})" style="margin-left:6px;cursor:pointer;">✅</span>
+      </div>
+    `;
+
+    div.addEventListener("dragstart", e => {
+      e.dataTransfer.setData("text/plain", index);
+    });
+
+    todoList.appendChild(div);
+  });
+}
+
+function addTodo() {
+  const text = todoInput.value.trim();
+  if (!text) return;
+  todos.push({ text, done: false, color: "#f3d9ff" });
+  todoInput.value = "";
+  saveTodos();
+  renderTodos();
+}
+
+function toggleTodo(index) {
+  todos[index].done = !todos[index].done;
+  saveTodos();
+  renderTodos();
+}
+
+function changeColor(index, color) {
+  todos[index].color = color;
+  saveTodos();
+  renderTodos();
+}
+
+renderTodos();
+
+/************ SCHEDULE ************/
+const scheduleBody = document.getElementById("scheduleBody");
+
+function addRow() {
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td contenteditable="true">New Time</td>
+    <td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+  `;
+  scheduleBody.appendChild(tr);
+  setupScheduleCells();
+  saveSchedule();
+}
+
+function setupScheduleCells() {
+  const cells = document.querySelectorAll("#scheduleTable td:not(:first-child)");
+  cells.forEach(cell => {
+    cell.contentEditable = true;
+
+    cell.addEventListener("dragover", e => {
+      e.preventDefault();
+      cell.classList.add("drop-hover");
+    });
+
+    cell.addEventListener("dragleave", () => {
+      cell.classList.remove("drop-hover");
+    });
+
+    cell.addEventListener("drop", e => {
+      e.preventDefault();
+      cell.classList.remove("drop-hover");
+      const todoIndex = e.dataTransfer.getData("text/plain");
+      const todo = todos[todoIndex];
+      if (todo) {
+        cell.textContent = todo.text;
+        cell.style.background = todo.color;
+        saveSchedule();
+      }
+    });
+
+    cell.addEventListener("input", saveSchedule);
+  });
+
+  const timeCells = document.querySelectorAll("#scheduleTable td:first-child");
+  timeCells.forEach(cell => cell.addEventListener("input", saveSchedule));
+}
+
+function saveSchedule() {
+  const data = [];
+  document.querySelectorAll("#scheduleTable tbody tr").forEach(row => {
+    const rowData = [];
+    row.querySelectorAll("td").forEach(cell => {
+      rowData.push({
+        text: cell.textContent,
+        bg: cell.style.background || ""
+      });
+    });
+    data.push(rowData);
+  });
+  localStorage.setItem("schedule", JSON.stringify(data));
+}
+
+function loadSchedule() {
+  const data = JSON.parse(localStorage.getItem("schedule"));
+  if (!data) return;
+
+  const rows = scheduleBody.querySelectorAll("tr");
+  data.forEach((rowData, r) => {
+    if (!rows[r]) return;
+    const cells = rows[r].querySelectorAll("td");
+    rowData.forEach((cellData, c) => {
+      if (!cells[c]) return;
+      cells[c].textContent = cellData.text;
+      cells[c].style.background = cellData.bg;
+    });
+  });
+}
+
+setupScheduleCells();
+loadSchedule();
+
+/************ SPOTIFY ************/
+const spotifyInput = document.getElementById("spotifyInput");
+const spotifyFrame = document.getElementById("spotifyFrame");
+
+spotifyInput.value = localStorage.getItem("<iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/playlist/3EJARqRZXHbJv65I89GKEX?utm_source=generator" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>) || "";
+
+if (spotifyInput.value) {
+  spotifyFrame.src = spotifyInput.value;
+}
+
+spotifyInput.addEventListener("change", () => {
+  localStorage.setItem("spotifyLink", spotifyInput.value);
+  spotifyFrame.src = spotifyInput.value;
+});
+</script>
+
+</body>
+</html>
